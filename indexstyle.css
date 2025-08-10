@@ -225,6 +225,11 @@ body {
     cursor: pointer;
 }
 
+#dialogue-text::selection {
+    color: var(--text-color);;
+    background-color: var(--page-color)
+}
+
 #choices-container {
     display: flex;
     flex-direction: column;
