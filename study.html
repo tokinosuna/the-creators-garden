@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Curator's Study</title>
+
+    <!-- The Chart.js library for creating charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Links to your external CSS file and web fonts, matching the project's aesthetic -->
+    <link rel="stylesheet" href="studystyle.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;700&family=Cinzel+Decorative:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+
+    <!-- Main Scene: Initially hidden by CSS, made visible via JS -->
+    <div id="finance-scene">
+        
+        <!-- Tools Panel: This container is styled to look like an ornate panel -->
+        <div id="tools-panel">
+            <div class="tool-icon" data-tool="budget" aria-label="Open Monthly Ledger">
+                <span class="icon-text">LEDGER</span>
+                <p class="tool-label">Monthly Ledger</p>
+            </div>
+            <div class="tool-icon" data-tool="inflation" aria-label="Open Temporal Decay Projector">
+                <span class="icon-text">HOURGLASS</span>
+                <p class="tool-label">Temporal Decay</p>
+            </div>
+            <div class="tool-icon" data-tool="fire" aria-label="Open 'Freedom' Equation">
+                <span class="icon-text">EQUATION</span>
+                <p class="tool-label">'Freedom' Equation</p>
+            </div>
+        </div>
+
+        <!-- Clickable character sprite on the main scene, updated to 'Sei' -->
+        <img id="character-sprite" src="imgs/stand1.png" alt="Sei, the curator, standing in his study." role="button" tabindex="0">
+
+    </div>
+
+    <!-- Story Overlay for initial dialogue and subsequent character interactions -->
+    <div id="story-overlay">
+        <!-- Container for the character sprite during dialogue -->
+        <div id="dialogue-sprite-container">
+            <!-- Source will be set by JS, placeholder removed -->
+            <img id="dialogue-sprite" src="" alt="Character speaking">
+        </div>
+        <!-- The dialogue box itself -->
+        <div id="dialogue-box">
+            <div id="character-name"></div>
+            <p id="dialogue-text"></p>
+            <div id="dialogue-next-indicator">▼</div>
+        </div>
+    </div>
+
+    <!-- Modal for the Budgeting Tool -->
+    <div class="modal-backdrop" id="budget-modal">
+        <div class="modal-content">
+            <button class="close-modal-btn" aria-label="Close">×</button>
+            <h2>Monthly Ledger</h2>
+             <div class="input-group">
+                <label for="income">Total Monthly Income</label>
+                <input type="number" id="income" placeholder="e.g., 3000">
+            </div>
+            <div class="input-group">
+                <label for="needs">Essential Spending (Needs)</label>
+                <input type="number" id="needs" placeholder="e.g., 1500">
+            </div>
+            <div class="input-group">
+                <label for="wants">Discretionary Spending (Wants)</label>
+                <input type="number" id="wants" placeholder="e.g., 900">
+            </div>
+            <button class="tool-button" id="calculate-budget">Analyze Ledger</button>
+            <div class="result-area" id="budget-result">
+                <div id="budget-chart-container"><canvas id="budget-chart"></canvas></div>
+                <!-- FIXED: Changed initial display currency from $ to € for consistency -->
+                <p>Remaining for Savings: <span id="savings-value" class="result-value">€0.00</span></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for the Inflation Tool -->
+    <div class="modal-backdrop" id="inflation-modal">
+        <div class="modal-content">
+            <button class="close-modal-btn" aria-label="Close">×</button>
+            <h2>Temporal Decay Projector</h2>
+            <div class="input-group">
+                <label for="current-amount">Current Amount (€)</label>
+                <input type="number" id="current-amount" placeholder="e.g., 10000">
+            </div>
+            <div class="input-group">
+                <label for="years">Years into the Future</label>
+                <input type="number" id="years" placeholder="e.g., 10">
+            </div>
+            <button class="tool-button" id="calculate-inflation">Project Decay</button>
+            <div class="result-area" id="inflation-result">
+                <p>Projected Future Value: <span id="future-value" class="result-value">€0.00</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for the FIRE (Financial Independence) Tool -->
+    <div class="modal-backdrop" id="fire-modal">
+        <div class="modal-content">
+            <button class="close-modal-btn" aria-label="Close">×</button>
+            <h2>'Freedom' Equation</h2>
+            <div class="input-group">
+                <label for="annual-expenses">Desired Annual Spending</label>
+                <input type="number" id="annual-expenses" placeholder="e.g., 40000">
+            </div>
+            <div class="input-group">
+                <label for="current-savings">Current Investments</label>
+                <input type="number" id="current-savings" placeholder="e.g., 50000">
+            </div>
+            <div class="input-group">
+                <label for="monthly-contribution">Monthly Investment</label>
+                <input type="number" id="monthly-contribution" placeholder="e.g., 1000">
+            </div>
+            <button class="tool-button" id="calculate-fire">Solve for 'Freedom'</button>
+            <div class="result-area" id="fire-result">
+               <p>Your 'Freedom' Number is: <span id="fire-number" class="result-value">€0.00</span></p>
+               <p>Time until goal: <span id="years-to-fire" class="result-value">-- years</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thematic Navigation Menu -->
+    <div id="navigation-menu">
+        <button id="nav-toggle-btn" title="Menu">
+            <span class="nav-icon">💮</span>
+        </button>
+        <a href="index.html" id="nav-story" class="nav-link">
+            <span class="nav-icon">💬</span>
+            <span class="nav-text">Story</span>
+        </a>
+        <a href="library.html" id="nav-library" class="nav-link">
+            <span class="nav-icon">📚</span>
+            <span class="nav-text">Library</span>
+        </a>
+        <!-- This is the active page -->
+        <a href="study.html" id="nav-study" class="nav-link active">
+            <span class="nav-icon">✒️</span>
+            <span class="nav-text">Study</span>
+        </a>
+    </div>
+
+    <!-- Link to your external JS file. 'defer' ensures it runs after the HTML is fully parsed. -->
+    <script src="studyscript.js" defer></script>
+</body>
+</html>
