@@ -135,7 +135,7 @@ if (seiCharacter) {
         showCharacterDialogue(seiRandomComments[randomIndex]);
     });
 } else {
-    console.error("CRITICAL ERROR: The character element with id 'character-sprite' was not found. The page will not function correctly. Check the ID in study.html.");
+    console.error("CRITICAL ERROR.");
 }
 
 
