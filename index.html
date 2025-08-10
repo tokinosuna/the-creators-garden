@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- The new, more hopeful title -->
+    <title>The Creator's Garden</title> 
+    <!-- Links to Google Fonts and your external stylesheet -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Cinzel+Decorative:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="indexstyle.css">
+    <link rel="icon" type="image/png" href="imgs/favicon.png">
+</head>
+<body>
+
+    <!-- This container centers the book cover on the page -->
+    <div id="pre-game-container">
+        <!-- The flippable book element -->
+        <div id="book-flipper">
+            
+            <!-- Front Cover: Updated with new title and tone -->
+            <div id="book-front">
+                <img id="book-cover-image" src="imgs/cover.png" alt="A sketch of a serene garden path">
+                <h1>The Creator's<br>Garden</h1>
+                <p class="subtitle">Where stories breathe,<br>and connections bloom.</p>
+                <p class="flip-instruction">Click to look the back</p>
+            </div>
+            
+            <!-- Back Cover: Rewritten to blend the warning with the hackathon mission -->
+            <div id="book-back">
+                <h2>A Note to the Visitor</h2>
+                <p class="synopsis">
+                    You find yourself in a world woven from ink and ivy. Here, an aloof curator named Sei tends to his library, a sanctuary of perfected stories. Your unexpected arrival disrupts his quiet world, but perhaps your presence is the one story he didn't know he was missing.
+                </p>
+                <!-- This new paragraph directly addresses the hackathon theme -->
+                <p class="mission-text">
+                    This is a hopeful experience about how patience and understanding can build bridges in a disconnected world.
+                </p>
+                <p class="warning-text">
+                    It gently explores themes of perfectionism, social anxiety, and the challenge of forming new connections.
+                </p>
+                <button id="start-game-btn">Step into the Garden</button>
+                <!-- NEW: This button allows the player to reset their progress -->
+              
+            </div>
+        </div>
+    </div>
+
+    <!-- The main game interface (Initially Hidden) -->
+    <div id="game-container">
+        <div id="left-page">
+            <div id="scene-visual">
+                <!-- Using your new Sei sprite! -->
+                <img id="character-sprite" src="imgs/sei.png" alt="Sei, the curator, sitting thoughtfully.">
+            </div>
+        </div>
+        <div id="right-page">
+            <div id="narrative-panel">
+                <h1 id="chapter-title"></h1>
+                <h2 id="speaker-name"></h2>
+                <p id="dialogue-text"></p>
+                <div id="choices-container"></div>
+                <div id="next-indicator" class="hidden">▼</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Thematic Navigation Menu -->
+<div id="navigation-menu">
+    <!-- The main button that you click. It can be an icon of a flower, a knot, or a seal -->
+    <button id="nav-toggle-btn" title="Menu">
+        <span class="nav-icon">💮</span>
+    </button>
+    
+    <!-- The links that will blossom outwards -->
+    <a href="index.html" id="nav-story" class="nav-link active">
+        <span class="nav-icon">💬</span>
+        <span class="nav-text">Story</span>
+    </a>
+    <a href="library.html" id="nav-library" class="nav-link disabled" title="Your bond with Sei is not yet strong enough.">
+        <span class="nav-icon">📚</span>
+        <span class="nav-text">Library</span>
+    </a>
+    <a href="study.html" id="nav-study" class="nav-link disabled" title="Your bond with Sei is not yet strong enough.">
+        <span class="nav-icon">✒️</span>
+        <span class="nav-text">Study</span>
+    </a>
+</div>
+
+    <!-- Link to your external JavaScript file, which will contain the full story and all logic -->
+    <script src="indexscript.js"></script>
+</body>
+</html>
