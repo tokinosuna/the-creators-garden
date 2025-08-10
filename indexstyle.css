@@ -1,0 +1,490 @@
+/* --- Google Font Import --- */
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Cinzel+Decorative:wght@400;700&display=swap');
+
+/* --- Root Color & Style Variables (NEW PALETTE) --- */
+:root {
+    --bg-color: #d0edf5;
+    --book-cover-color: #a3b8c3;
+    --accent-color: #e7b2c4;
+    --page-color: #f3eade;
+    --text-color: #3d352a;
+    --ink-color: #6d5b61;
+    --choice-bg: rgba(61, 53, 42, 0.05);
+    --choice-hover-bg: rgba(61, 53, 42, 0.15);
+}
+
+/* --- Base Body & Global Styles --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-color);
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden; /* Prevents scrolling on the body */
+    font-family: 'Lora', serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- Pre-Game Book Cover Styling --- */
+#pre-game-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1500px;
+    transition: opacity 0.8s ease-in-out;
+    padding: 20px;
+}
+
+#book-flipper {
+    width: 400px;
+    height: 600px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+    cursor: pointer;
+    max-width: 100%;
+}
+
+#book-flipper.is-flipped {
+    transform: rotateY(180deg);
+}
+
+#book-front, #book-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 30px;
+    background: var(--book-cover-color) linear-gradient(145deg, rgba(255,255,255,0.1), rgba(0,0,0,0.1));
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+#book-cover-image {
+    width: 80%;
+    margin-bottom: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+    opacity: 0.8;
+}
+
+#book-front h1 {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 2.8em;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    margin: 0;
+    line-height: 1.2;
+}
+
+#book-front .subtitle {
+    margin: 15px 0;
+    font-style: italic;
+    opacity: 0.9;
+}
+
+#book-front .flip-instruction {
+    position: absolute;
+    bottom: 20px;
+    font-size: 0.9em;
+    opacity: 0.7;
+}
+
+#book-back {
+    transform: rotateY(180deg);
+    justify-content: space-around;
+}
+
+#book-back h2 {
+    font-family: 'Cinzel Decorative', cursive;
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 10px;
+    margin: 0;
+}
+
+#book-back .synopsis, #book-back .warning-text, #book-back .mission-text {
+    font-size: 1em;
+    line-height: 1.7;
+    padding: 0 15px;
+}
+
+.warning-text { opacity: 0.8; }
+
+#start-game-btn {
+    padding: 12px 25px;
+    background-color: var(--accent-color);
+    border: none;
+    color: var(--text-color);
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 1.1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.3s;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+#start-game-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px var(--accent-color);
+}
+
+/* --- Main Game Container Styling --- */
+#game-container {
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    display: none;
+    opacity: 0;
+    transition: opacity 1.2s ease-in;
+    display: flex;
+}
+
+#left-page, #right-page {
+    background-color: var(--page-color);
+    flex: 1;
+    box-shadow: inset 5px 0 15px rgba(0,0,0,0.2);
+    position: relative;
+    overflow: hidden;
+    border-left: 1px solid #d1c4b3;
+    height: 100%;
+}
+
+#scene-visual {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: opacity 1.5s ease-in-out;
+}
+
+#character-sprite {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 95%;
+    max-height: 900px; /* Max size for large screens */
+    width: auto;
+    opacity: 0;
+    transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+    filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.3));
+}
+
+#character-sprite.visible {
+    opacity: 1;
+}
+
+#narrative-panel {
+    padding: 50px 60px;
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto; /* Allow scrolling on narrative panel if content overflows */
+}
+
+#chapter-title {
+    font-family: 'Cinzel Decorative', cursive;
+    color: var(--accent-color);
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 30px;
+    min-height: 1.2em;
+}
+
+#speaker-name {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 1.4em;
+    color: var(--ink-color);
+    margin-bottom: 10px;
+    height: 30px;
+}
+
+#dialogue-text {
+    font-size: 1.2em;
+    line-height: 1.7;
+    flex-grow: 1;
+    min-height: 150px;
+    cursor: pointer;
+}
+
+#choices-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+    padding-bottom: 60px; /* Space for next indicator */
+}
+
+.choice-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--choice-bg);
+    border: 1px solid #d1c4b3;
+    border-left: 3px solid var(--accent-color);
+    text-align: left;
+    font-family: 'Lora', serif;
+    font-size: 1.1em;
+    font-style: italic;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: background-color .3s, transform .2s;
+    opacity: 0;
+    animation: fadeIn .5s forwards;
+}
+
+.choice-btn:hover {
+    background-color: var(--choice-hover-bg);
+    transform: translateX(5px);
+}
+
+#next-indicator {
+    position: absolute;
+    bottom: 30px;
+    right: 40px;
+    font-size: 2em;
+    color: var(--accent-color);
+    cursor: pointer;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* --- Universal Navigation Menu --- */
+#navigation-menu {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+#nav-toggle-btn {
+    width: 60px;
+    height: 60px;
+    background-color: var(--page-color);
+    border: 2px solid #d1c4b3;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+    color: var(--accent-color);
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), box-shadow 0.3s ease;
+    position: relative;
+    z-index: 1001;
+    pointer-events: auto;
+}
+
+#nav-toggle-btn:hover {
+    box-shadow: 0 6px 20px var(--accent-color);
+}
+
+#navigation-menu.is-open #nav-toggle-btn {
+    transform: rotate(135deg);
+    background-color: var(--accent-color);
+    color: white;
+}
+
+.nav-link {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    width: 50px;
+    height: 50px;
+    background: var(--page-color);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border: 1px solid #d1c4b3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    opacity: 0;
+    transform: scale(0.5) translate(0, 0);
+    pointer-events: none;
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease;
+}
+
+#navigation-menu.is-open .nav-link {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#navigation-menu.is-open #nav-story { transform: translate(120px, 0); transition-delay: 0.0s; }
+#navigation-menu.is-open #nav-library { transform: translate(85px, -85px); transition-delay: 0.1s; }
+#navigation-menu.is-open #nav-study { transform: translate(0, -120px); transition-delay: 0.2s; }
+
+.nav-link .nav-text {
+    position: absolute;
+    left: 120%;
+    background: var(--page-color);
+    padding: 5px 12px;
+    border-radius: 5px;
+    color: var(--text-color);
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 0.9em;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.nav-link:hover .nav-text {
+    opacity: 1;
+    transition-delay: 0.3s;
+}
+
+.nav-link .nav-icon {
+    font-size: 1.5em;
+    color: var(--text-color);
+}
+
+.nav-link.active .nav-icon {
+    color: var(--accent-color);
+}
+
+.nav-link.disabled {
+    opacity: 0.4 !important;
+    cursor: not-allowed;
+    background-color: #e0e0e0;
+}
+
+.nav-link.disabled:hover .nav-text {
+    opacity: 0 !important;
+}
+
+.nav-link.disabled:hover::after {
+    content: attr(title);
+    position: absolute;
+    left: 120%;
+    background-color: #3d352a;
+    color: #f3eade;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8em;
+    font-family: 'Lora', serif;
+    white-space: nowrap;
+    z-index: 1001;
+}
+
+/* --- Responsive Design Media Queries --- */
+
+/* Tablet (Portrait and Landscape) */
+@media (max-width: 1024px) {
+    #narrative-panel {
+        padding: 40px;
+    }
+
+    #character-sprite {
+        height: 85%;
+    }
+
+    #book-flipper {
+        width: 350px;
+        height: 525px;
+    }
+
+    #book-front h1 {
+        font-size: 2.4em;
+    }
+}
+
+/* Mobile Devices */
+@media (max-width: 767px) {
+    #game-container {
+        flex-direction: column;
+        padding: 0;
+        overflow-y: auto; /* Allow scrolling for the whole container on mobile */
+    }
+
+    #left-page {
+        flex: 0 0 40vh; /* Fixed height for the visual part */
+        border-left: none;
+        box-shadow: inset 0 -5px 15px rgba(0,0,0,0.2);
+    }
+    
+    #right-page {
+        flex: 1 1 auto; /* Takes remaining space */
+        min-height: 60vh;
+        box-shadow: none;
+        border-left: none;
+    }
+
+    #character-sprite {
+        height: 100%; /* Fill the 40vh container */
+    }
+
+    #narrative-panel {
+        padding: 30px 25px;
+        min-height: auto;
+    }
+    
+    #dialogue-text {
+        font-size: 1.1em;
+        min-height: 120px;
+        user-select: none;
+    }
+
+    #next-indicator {
+        bottom: 15px;
+        right: 20px;
+    }
+    
+    #choices-container {
+        padding-bottom: 40px;
+    }
+
+    /* Book Cover on Mobile */
+    #book-flipper {
+        width: 90vw;
+        height: 75vh;
+        max-height: 500px;
+    }
+    #book-front h1 { font-size: 2em; }
+    #book-back .synopsis, #book-back .warning-text, #book-back .mission-text { font-size: 0.9em; }
+
+    /* Navigation Menu on Mobile */
+    #navigation-menu {
+        bottom: 15px;
+        left: 15px;
+    }
+    #nav-toggle-btn { width: 50px; height: 50px; font-size: 1.8em; }
+    .nav-link { width: 45px; height: 45px; }
+    
+    #navigation-menu.is-open #nav-story { transform: translate(90px, 0); }
+    #navigation-menu.is-open #nav-library { transform: translate(65px, -65px); }
+    #navigation-menu.is-open #nav-study { transform: translate(0, -90px); }
+}
