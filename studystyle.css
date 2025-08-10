@@ -180,7 +180,10 @@ body {
 #character-name { font-family: 'Cinzel Decorative', cursive; font-weight: 700; font-size: 1.5em; color: var(--ink-color); margin-bottom: 15px; }
 #dialogue-text { color: var(--text-color); font-size: 1.2em; line-height: 1.6;  user-select: none; }
 #dialogue-text i, .narrator-text { color: var(--ink-color); font-style: italic;  user-select: none; }
-
+#dialogue-text::selection {
+    color: var(--text-color);;
+    background-color: var(--page-color)
+}
 #dialogue-next-indicator { color: var(--accent-color); position: absolute; bottom: 15px; right: 25px; font-size: 1.5em; animation: pulse 1.5s infinite; }
 @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
