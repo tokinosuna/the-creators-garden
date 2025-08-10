@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Curator's Library</title>
+<style>    
+    /* --- Google Font & Root Variables --- */
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Cinzel+Decorative:wght@400;700&display=swap');
+
+:root {
+    --bg-color: #d0edf5;
+    --book-cover-color: #a3b8c3;
+    --accent-color: #e7b2c4;
+    --page-color: #f3eade;
+    --text-color: #3d352a;
+    --ink-color: #6d5b61;
+    --choice-bg: rgba(61, 53, 42, 0.05);
+    --choice-hover-bg: rgba(61, 53, 42, 0.15);
+    --correct-color: #5d6e5a;
+    --incorrect-color: #b97375;
+}
+
+/* --- Base Layout --- */
+body {
+    background-color: var(--page-color);
+    color: var(--text-color);
+    font-family: 'Lora', serif;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+#library-scene {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: var(--page-color);
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 50px;
+    box-sizing: border-box;
+}
+
+/* --- Bookshelf & Books --- */
+#bookshelf {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+    gap: 10px;
+    background: rgba(0,0,0,0.05);
+    padding: 40px;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.1);
+    box-sizing: border-box;
+    position: absolute;
+    top: 50%;
+    left: 80px;
+    transform: translateY(-50%);
+    width: 55%;
+    max-width: 980px;
+    height: auto;
+    transition: all 0.3s ease;
+}
+
+.book {
+    width: 100px;
+    height: 330px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+    font-family: 'Cinzel Decorative', cursive;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.book:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.book.completed {
+    filter: grayscale(80%) brightness(0.9);
+    cursor: not-allowed;
+}
+
+.book.completed:hover { 
+    transform: none; 
+    box-shadow: none; 
+}
+
+#book1 { background-color: #6a6262; }
+#book2 { background-color: #8c929a; }
+#book3 { background-color: #727e75; }
+#book4 { background-color: #c4c4c4; }
+#book5 { background-color: #4c0099; }
+#book6 { background-color: #1a237e; }
+#book7 { background-color: #9c8277; }
+#book8 { background-color: #40304a; }
+#book9 { background-color: #2b2b2b; }
+#book10 { background-color: #5d5453;}
+
+/* --- Character Style --- */
+#shu {
+    position: fixed;   
+    bottom: -300px;  
+    right: 0;        
+    height: 80vh;      
+    max-height: 1200px; 
+    transform: scale(3); 
+    cursor: pointer;
+    transition: all 0.3s ease;
+    filter: drop-shadow(5px 5px 8px rgba(0,0,0,0.25));
+    z-index: 50;
+}
+
+#shu:hover { 
+    transform: scale(3.02); 
+}
+
+/* --- Dialogue System --- */
+#dialogue-box {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 900px;
+    min-height: 150px;
+    background-color: rgba(243, 234, 222, 0.95);
+    border: 1px solid #d1c4b3;
+    border-top: 3px solid var(--accent-color);
+    border-radius: 10px;
+    padding: 20px 30px;
+    box-sizing: border-box;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    cursor: pointer;
+    z-index: 2000;
+}
+
+#dialogue-box.quiz-active { 
+    cursor: default; 
+}
+
+#character-name { 
+    font-family: 'Cinzel Decorative', cursive; 
+    font-weight: 700; 
+    font-size: 1.5em; 
+    color: var(--ink-color); 
+    margin-bottom: 15px; 
+}
+
+#dialogue-text { 
+    font-size: 1.2em; 
+    line-height: 1.6; 
+    flex-grow: 1; 
+    color: var(--text-color); 
+}
+
+#dialogue-text i { 
+    color: var(--ink-color); 
+    font-style: italic; 
+    opacity: 0.9; 
+}
+
+#quiz-options { 
+    margin-top: 20px; 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 15px; 
+    justify-content: center; 
+}
+
+.quiz-btn {
+    padding: 12px 25px; 
+    background-color: var(--choice-bg); 
+    border: 1px solid #d1c4b3; 
+    border-left: 3px solid var(--accent-color); 
+    color: var(--text-color); 
+    font-family: 'Lora', serif; 
+    font-size: 1.1em; 
+    cursor: pointer; 
+    border-radius: 5px; 
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.quiz-btn:hover:not(:disabled) { 
+    background-color: var(--choice-hover-bg); 
+    transform: translateX(3px); 
+}
+
+.quiz-btn.correct { 
+    background-color: var(--correct-color) !important; 
+    color: white; 
+    border-color: var(--correct-color); 
+}
+
+.quiz-btn.incorrect { 
+    background-color: var(--incorrect-color) !important; 
+    color: white; 
+    border-color: var(--incorrect-color); 
+}
+
+.quiz-btn:disabled { 
+    cursor: not-allowed; 
+    opacity: 0.8; 
+}
+
+#dialogue-next-indicator { 
+    position: absolute; 
+    bottom: 15px; 
+    right: 20px; 
+    font-size: 1.5em; 
+    animation: pulse 1.5s infinite; 
+    color: var(--accent-color); 
+}
+
+@keyframes pulse { 
+    0% { opacity: 1; } 
+    50% { opacity: 0.3; } 
+    100% { opacity: 1; } 
+}
+
+.hidden { 
+    display: none !important; 
+}
+
+/* --- Navigation Menu --- */
+#navigation-menu { 
+    position: fixed; 
+    bottom: 30px; 
+    left: 30px; 
+    z-index: 1000; 
+    pointer-events: none; 
+}
+
+#nav-toggle-btn { 
+    width: 60px; 
+    height: 60px; 
+    background-color: var(--page-color); 
+    border: 2px solid #d1c4b3; 
+    border-radius: 50%; 
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); 
+    cursor: pointer; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    font-size: 2em; 
+    color: var(--accent-color); 
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), box-shadow 0.3s ease; 
+    position: relative; 
+    z-index: 1001; 
+    pointer-events: auto; 
+}
+
+#nav-toggle-btn:hover { 
+    box-shadow: 0 6px 20px var(--accent-color); 
+}
+
+#navigation-menu.is-open #nav-toggle-btn { 
+    transform: rotate(135deg); 
+    background-color: var(--accent-color); 
+    color: white; 
+}
+
+.nav-link { 
+    position: absolute; 
+    bottom: 5px; 
+    left: 5px; 
+    width: 50px; 
+    height: 50px; 
+    background: var(--page-color); 
+    border-radius: 50%; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15); 
+    border: 1px solid #d1c4b3; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    text-decoration: none; 
+    opacity: 0; 
+    transform: scale(0.5) translate(0, 0); 
+    pointer-events: none; 
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease; 
+}
+
+#navigation-menu.is-open .nav-link { 
+    opacity: 1; 
+    pointer-events: auto; 
+}
+
+#navigation-menu.is-open #nav-story { 
+    transform: translate(120px, 0); 
+    transition-delay: 0.0s; 
+}
+
+#navigation-menu.is-open #nav-library { 
+    transform: translate(85px, -85px); 
+    transition-delay: 0.1s; 
+}
+
+#navigation-menu.is-open #nav-study { 
+    transform: translate(0, -120px); 
+    transition-delay: 0.2s; 
+}
+
+.nav-link .nav-text { 
+    position: absolute; 
+    left: 120%; 
+    background: var(--page-color); 
+    padding: 5px 12px; 
+    border-radius: 5px; 
+    color: var(--text-color); 
+    font-family: 'Cinzel Decorative', cursive; 
+    font-size: 0.9em; 
+    white-space: nowrap; 
+    opacity: 0; 
+    transition: opacity 0.2s ease; 
+    pointer-events: none; 
+}
+
+.nav-link:hover .nav-text { 
+    opacity: 1; 
+    transition-delay: 0.3s; 
+}
+
+.nav-link .nav-icon { 
+    font-size: 1.5em; 
+    color: var(--text-color); 
+}
+
+.nav-link.active .nav-icon { 
+    color: var(--accent-color); 
+}
+
+.nav-link.disabled { 
+    opacity: 0.4 !important; 
+    cursor: not-allowed; 
+    background-color: #e0e0e0; 
+}
+
+.nav-link.disabled:hover .nav-text { 
+    opacity: 0 !important; 
+}
+
+.nav-link.disabled:hover::after { 
+    content: attr(title); 
+    position: absolute; 
+    left: 120%; 
+    background-color: #3d352a; 
+    color: #f3eade; 
+    padding: 5px 10px; 
+    border-radius: 5px; 
+    font-size: 0.8em; 
+    font-family: 'Lora', serif; 
+    white-space: nowrap; 
+    z-index: 1001; 
+}
+
+/* --- Responsive Media Queries --- */
+
+/* For tablets and smaller desktops */
+@media (max-width: 1200px) {
+    #bookshelf {
+        position: relative;
+        width: 90%;
+        left: auto;
+        top: auto;
+        transform: none;
+        padding: 30px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    #shu {
+        display: none; /* Hide character to make space for bookshelf */
+    }
+    #library-scene {
+        overflow-y: auto;
+        padding: 20px;
+        align-items: flex-start;
+    }
+}
+
+/* For mobile devices */
+@media (max-width: 768px) {
+    body {
+        overflow: auto; /* Allow scrolling on small screens */
+    }
+    #library-scene {
+        padding: 15px;
+    }
+    #bookshelf {
+        width: 100%;
+        padding: 20px;
+        gap: 15px;
+    }
+    .book {
+        width: 80px;
+        height: 260px;
+        font-size: 0.8em;
+    }
+    #dialogue-box {
+        width: 95%;
+        bottom: 10px;
+        padding: 15px;
+        min-height: 120px;
+    }
+    #dialogue-text {
+        font-size: 1em;
+        user-select: none;
+    }
+    #navigation-menu {
+        bottom: 10px;
+        left: 10px;
+    }
+    #nav-toggle-btn {
+        width: 50px;
+        height: 50px;
+    }
+}
+</style>
+<link rel="icon" type="image/png" href="imgs/favicon.png">
+</head>
+<body>
+
+    <div id="library-scene">
+        <div id="bookshelf">
+            <img src="https://placehold.co/100x330/a96e6f/FFFFFF?text=Fabula" alt="Red Book" class="book" id="book1" data-book-id="1">
+            <img src="https://placehold.co/100x330/8fa5b0/FFFFFF?text=Historia" alt="Blue Book" class="book" id="book2" data-book-id="2">
+            <img src="https://placehold.co/100x330/7a8a77/FFFFFF?text=Poesis" alt="Green Book" class="book" id="book3" data-book-id="3">
+            <img src="https://placehold.co/100x330/BDBDBD/FFFFFF?text=Architectura" alt="Grey Book" class="book" id="book4" data-book-id="4">
+            <img src="https://placehold.co/100x330/4A148C/FFFFFF?text=Mythologia" alt="Purple Book" class="book" id="book5" data-book-id="5">
+            <img src="https://placehold.co/100x330/1A237E/FFFFFF?text=Lapidarium" alt="Deep Blue Book" class="book" id="book6" data-book-id="6">
+            <img src="https://placehold.co/100x330/8D6E63/FFFFFF?text=Acu+Pictae" alt="Brown Book" class="book" id="book7" data-book-id="7">
+            <img src="https://placehold.co/100x330/6A1B9A/FFFFFF?text=Botanica" alt="Violet Book" class="book" id="book8" data-book-id="8">
+            <img src="https://placehold.co/100x330/212121/FFFFFF?text=Musica" alt="Black Book" class="book" id="book9" data-book-id="9">
+            <img src="https://placehold.co/100x330/795548/FFFFFF?text=Chronometria" alt="Copper Book" class="book" id="book10" data-book-id="10">
+        </div>
+        <img id="shu" src="imgs/sitdefault.png" alt="Sei sitting thoughtfully">
+    </div>
+
+    <div id="dialogue-box">
+        <div id="character-name"></div>
+        <p id="dialogue-text"></p>
+        <div id="quiz-options" class="hidden"></div>
+        <div id="dialogue-next-indicator" class="hidden">▼</div>
+    </div>
+
+    <!-- Thematic Navigation Menu (from index.html) -->
+    <div id="navigation-menu">
+        <button id="nav-toggle-btn" title="Menu">
+            <span class="nav-icon">💮</span>
+        </button>
+        <a href="index.html" id="nav-story" class="nav-link">
+            <span class="nav-icon">💬</span>
+            <span class="nav-text">Story</span>
+        </a>
+        <!-- This is the active page -->
+        <a href="library.html" id="nav-library" class="nav-link active">
+            <span class="nav-icon">📚</span>
+            <span class="nav-text">Library</span>
+        </a>
+        <a href="study.html" id="nav-study" class="nav-link">
+            <span class="nav-icon">✒️</span>
+            <span class="nav-text">Study</span>
+        </a>
+    </div>
+
+    <script>
+    const libraryData = {
+        "1": { // Fabula Rubra
+            dialogue: [
+                { speaker: "You", text: "You gently touch the crimson spine. It feels warm. Inside, a girl in a red hood is meticulously plotting a route on a map..." },
+                { speaker: "Sei", text: "Must you touch everything like a child in a sweet shop? That is a precision instrument, not a toy. Give it here." },
+                { speaker: "Sei", text: "Let me show you what true narrative sounds like. Listen, and try to keep up." },
+                { speaker: "Sei", text: "<i>Ubi est lupus? Lupus in silva est.</i>" },
+                { speaker: "Sei", text: "A simple, declarative statement. <i>'Ubi'</i> means 'where'. <i>'Est'</i> is 'is'. <i>'Lupus'</i>, the wolf. And <i>'silva'</i>, the forest. The grammar places the noun before the location for emphasis." },
+                { speaker: "Sei", text: "It translates to: 'Where is the wolf? The wolf is in the forest.' It's a logistical problem, not a melodrama." },
+                { speaker: "Sei", text: "Now, prove you were listening and not just daydreaming." },
+            ],
+            retryDialogue: [
+                { speaker: "Sei", text: "The sentence was: <i>Ubi est lupus? Lupus in silva est.</i>" },
+                { speaker: "Sei", text: "Pay attention to the last part. <i>In silva</i>. This means 'in the forest'. Therefore, 'silva' by itself is... the forest. A simple deduction." },
+                { speaker: "Sei", text: "Let's see if that has sunk in." }
+            ],
+            quiz: {
+                question: "Based on the lesson, what is the meaning of 'silva'?",
+                options: ["Wolf", "Where", "Forest"],
+                answer: "Forest"
+            }
+        },
+        "2": { // Historia
+            dialogue: [
+                { speaker: "You", text: "The pages of this blue book describe a general who won a war without a single casualty, thanks to a flawless logistical plan..." },
+                { speaker: "Sei", text: "Ah, this one. A study in efficiency. But it contains a sentiment I found... distracting. I shall read it for you." },
+                { speaker: "Sei", text: "<i>Amor et melle et felle est fecundissimus.</i>" },
+                { speaker: "Sei", text: "<i>'Amor'</i> is 'love', a foolish concept. <i>'Melle'</i> is honey, <i>'felle'</i> is venom. <i>'Fecundissimus'</i> means 'most rich' or 'fertile'." },
+                { speaker: "Sei", text: "It means 'Love is rich in both honey and venom.' A ridiculous idea. One should stick to the practicalities and discard the rest." },
+                { speaker: "Sei", text: "Let's see if that simple lesson managed to penetrate your skull." },
+            ],
+            retryDialogue: [
+                { speaker: "Sei", text: "The phrase was: <i>Amor et melle et felle est fecundissimus.</i>" },
+                { speaker: "Sei", text: "Let me be exceedingly clear. The very first word, <i>'amor'</i>, is 'love'. A foolish, impractical concept, but 'love' nonetheless." },
+                { speaker: "Sei", text: "I will ask again. Try not to disappoint me further." }
+            ],
+            quiz: {
+                question: "What does 'amor' mean in the passage?",
+                options: ["Honey", "Venom", "Love"],
+                answer: "Love"
+            }
+        },
+        "3": { // Poesis
+            dialogue: [
+                { speaker: "You", text: "This green book seems to contain only a single, perfect, six-sided snowflake, described with geometric precision..." },
+                { speaker: "Sei", text: "The only piece of poetry that matters. It contains no needless emotion, only truth." },
+                { speaker: "Sei", text: "<i>Ars longa, vita brevis.</i>" },
+                { speaker: "Sei", text: "<i>'Ars'</i> is Art. <i>'Longa'</i> means long. <i>'Vita'</i> is life, and <i>'brevis'</i> is short. The structure is a chiasmus, a poetic reversal." },
+                { speaker: "Sei", text: "The translation: 'Art is long, life is short.' The only truth worth remembering. It is the core of my philosophy." },
+                { speaker: "Sei", text: "Surely, even you can remember this. Prove it." },
+            ],
+            retryDialogue: [
+                { speaker: "Sei", text: "The text was: <i>Ars longa, vita brevis.</i>" },
+                { speaker: "Sei", text: "Art is long. Life, <i>'vita'</i>, is short. I am asking for the meaning of 'vita'. Life. The brief, chaotic thing that ends." },
+                { speaker: "Sei", text: "Prove you have a functional memory." }
+            ],
+            quiz: {
+                question: "What is the meaning of 'vita'?",
+                options: ["Art", "Short", "Life"],
+                answer: "Life"
+            }
+        },
+
+        "4": { // Architectura
+            dialogue: [
+                { speaker: "You", text: "The diagrams in this grey book are incredible, like a blueprint for a cathedral..." },
+                { speaker: "Sei", text: "Non. It is not 'incredible', it is *correct*. A flawless design. This is what you should aspire to understand." },
+                { speaker: "Sei", text: "<i>Aedificia sunt opera artis.</i>" },
+                { speaker: "Sei", text: "<i>'Aedificia'</i> refers to buildings. <i>'Sunt'</i> is 'are'. <i>'Opera artis'</i> means 'works of art'. The sentence states a simple, profound truth: 'Buildings are works of art'." },
+                { speaker: "Sei", text: "Not mere shelters, but monumental sculptures. They impose order on the landscape, a testament to an artist's vision. My stage sets operate on the same principle." },
+                { speaker: "Sei", text: "Now, what is an 'aedificium'?" },
+            ],
+            retryDialogue: [
+                { speaker: "Sei", text: "<i>Aedificia sunt opera artis.</i> 'Buildings are works of art'. I am asking for the subject of the sentence. The thing that *is* a work of art." },
+                { speaker: "Sei", text: "This is not a complex deduction. Try again." }
+            ],
+            quiz: {
+                question: "What does 'aedificium' refer to?",
+                options: ["Work of Art", "A stage", "A building"],
+                answer: "A building"
+            }
+        },
+        "5": { // Mythologia
+            dialogue: [
+                { speaker: "You", text: "This purple book is about a king who turns everything he touches to gold..." },
+                { speaker: "Sei", text: "Hmph. The tale of Midas. It is not a story of magic, but of foolish desire. He was undone by his own greed." },
+                { speaker: "Sei", text: "<i>Auri sacra fames.</i>" },
+                { speaker: "Sei", text: "<i>'Auri'</i> is 'of gold'. <i>'Sacra'</i> here means 'accursed', and <i>'fames'</i> is hunger. 'The accursed hunger for gold'." },
+                { speaker: "Sei", text: "He valued a material over true art, over life itself. A common, tedious failing of philistines. He could not even hold one of my dolls without turning it into a gaudy paperweight." },
+                { speaker: "Sei", text: "What is the meaning of 'fames'?" },
+            ],
+            retryDialogue: [
+                { speaker: "Sei", text: "<i>Auri sacra fames.</i> The hunger for gold. A hunger. Do you understand what a 'hunger' is? A craving, a desire." },
+                { speaker: "Sei", text: "I will ask again. Do not make me regret this." }
+            ],
+            quiz: {
+                question: "In this phrase, what does 'fames' mean?",
+                options: ["Gold", "Sacred", "Hunger"],
+                answer: "Hunger"
+            }
+        },
+        "6": { // Lapidarium
+            dialogue: [
+                { speaker: "You", text: "This book is filled with drawings of castles made of sand, next to perfect diamonds..." },
+                { speaker: "Sei", text: "Ah, a study in permanence versus ephemerality. A theme central to my art. A castle of sand is fleeting, easily destroyed. A work of a child." },
+                { speaker: "Sei", text: "<i>Flos in eremo.</i>" },
+                { speaker: "Sei", text: "<i>'Flos'</i> is 'flower'. <i>'In'</i> is 'in'. And <i>'eremo'</i> is 'the desert'. 'A flower in the desert'. It is a beautiful, fragile thing in a harsh, empty landscape." },
+                { speaker: "Sei", text: "Like ... once was. Its beauty is defined by its precarity. Now, I forge diamonds, not flowers." },
+                { speaker: "Sei", text: "Tell me, what is the 'eremum'?" },
+            ],
+            retryDialogue: [
+                { speaker: "Sei", text: "<i>Flos in eremo.</i> A flower... in the desert. The location is the desert. A vast, empty, sandy place." },
+                { speaker: "Sei", text: "If the flower is 'flos', then the 'eremum' must be...?" }
+            ],
+            quiz: {
+                question: "What does 'eremum' mean?",
+                options: ["Flower", "Castle", "Desert"],
+                answer: "Desert"
+            }
+        },
+        "7": { // Acu Pictae
+            dialogue: [
+                { speaker: "You", text: "The brown cover feels like rough linen. Inside are sketches of thread and needles..." },
+                { speaker: "Sei", text: "My domain. This is not mere sewing, you understand. It is creation itself." },
+                { speaker: "Sei", text: "<i>Omnis ars imitatio est naturae.</i>" },
+                { speaker: "Sei", text: "<i>'Omnis ars'</i> is 'all art'. <i>'Imitatio'</i> is 'imitation'. <i>'Est'</i> is 'is'. And <i>'naturae'</i> means 'of nature'." },
+                { speaker: "Sei", text: "All art is an imitation of nature. With thread, I can create a rose more perfect than any that grows. I do not simply copy; I refine. I perfect." },
+                { speaker: "Sei", text: "What is the meaning of 'imitatio'?" },
+            ],
+            retryDialogue: [
+                { speaker: "Sei", text: "I just explained it. <i>Imitatio</i>. Imitation. To imitate. To copy or simulate. Is the concept of imitation truly foreign to you?" },
+                { speaker: "Sei", text: "Listen this time. What is 'imitatio'?" }
+            ],
+            quiz: {
+                question: "What does 'imitatio' mean?",
+                options: ["Nature", "Art", "Imitation"],
+                answer: "Imitation"
+            }
+        },
+        "8": { // Botanica
+            dialogue: [
+                { speaker: "You", text: "This violet book has a single pressed rose inside. It's beautiful, but the thorns are sharp." },
+                { speaker: "Sei", text: "Hmph. Of course they are. A rose without thorns is incomplete, a flawed creation. It cannot defend its own beauty." },
+                { speaker: "Sei", text: "<i>Spina etiam grata est.</i>" },
+                { speaker: "Sei", text: "<i>'Spina'</i> is 'thorn'. <i>'Etiam'</i> means 'even' or 'also'. <i>'Grata est'</i> means 'is pleasing' or 'welcome'." },
+                { speaker: "Sei", text: "The phrase means, 'Even the thorn is pleasing.' The thorn is not a flaw; it is a vital part of the whole design. A necessary component of its perfection." },
+                { speaker: "Sei", text: "Now, what is the 'spina'?" },
+            ],
+            retryDialogue: [
+                { speaker: "Sei", text: "<i>Spina etiam grata est.</i> Even the THORN is pleasing. The sharp part. The defense mechanism. The 'spina'." },
+                { speaker: "Sei", text: "Surely you can recall this." }
+            ],
+            quiz: {
+                question: "What is the meaning of 'spina'?",
+                options: ["Rose", "Thorn", "Pleasing"],
+                answer: "Thorn"
+            }
+        },
+        "9": { // Musica
+            dialogue: [
+                { speaker: "You", text: "The black cover is stark. The pages inside are mostly blank, with just a few notes scattered..." },
+                { speaker: "Sei", text: "You see only what is there. A philistine's view. The genius is in what is *not* there. The space between the notes." },
+                { speaker: "Sei", text: "<i>Silentium est aurum.</i>" },
+                { speaker: "Sei", text: "<i>'Silentium'</i> is silence. <i>'Est'</i>, 'is'. <i>'Aurum'</i>, gold. 'Silence is golden'." },
+                { speaker: "Sei", text: "Any fool can make noise. True artistry, in music as in life, lies in knowing when to be silent. The rests give the notes their power." },
+                { speaker: "Sei", text: "Prove you understand this fundamental concept." },
+            ],
+            retryDialogue: [
+                { speaker: "Sei", text: "<i>Silentium est aurum.</i> Silence. Is. Golden. I am asking for the meaning of 'silentium'. The absence of sound." },
+                { speaker: "Sei", text: "Perhaps you should practice it." }
+            ],
+            quiz: {
+                question: "What does 'silentium' mean?",
+                options: ["Gold", "Music", "Silence"],
+                answer: "Silence"
+            }
+        },
+        "10": { // Chronometria
+            dialogue: [
+                { speaker: "You", text: "This book smells of old metal and oil. It's full of diagrams of hourglasses and pendulums." },
+                { speaker: "Sei", text: "It is a study of the most precious, and most merciless, resource we possess." },
+                { speaker: "Sei", text: "<i>Tempus neminem manet.</i>" },
+                { speaker: "Sei", text: "<i>'Tempus'</i> is 'time'. <i>'Neminem'</i> means 'no one'. And <i>'manet'</i> means 'waits for'. 'Time waits for no one'." },
+                { speaker: "Sei", text: "It marches forward, indifferent to your foolish whims. My art is a rebellion against this. I capture a perfect moment and make it eternal. I command time, not the other way around." },
+                { speaker: "Sei", text: "What is this relentless force, 'tempus'?" },
+            ],
+            retryDialogue: [
+                { speaker: "Sei", text: "<i>Tempus neminem manet.</i> TIME waits for no one. The thing that is measured by clocks. The concept you are currently wasting." },
+                { speaker: "Sei", text: "Do not test my patience further. What is 'tempus'?" }
+            ],
+            quiz: {
+                question: "What is the meaning of 'tempus'?",
+                options: ["No one", "Time", "To wait"],
+                answer: "Time"
+            }
+        }
+       
+    };
+
+    const seiResponses = {
+        correct: ["Hmph. Acceptable. At least your mind isn't entirely filled with cotton.", "Correct. Do not look so proud, it was a trivial question.", "Finally. Perhaps there is some hope for you yet."],
+        specialCorrect: "You... actually listened. Perhaps you are more than just a distraction. A welcome one.",
+        firstIncorrect: "<i>He sighs, pinching the bridge of his nose.</i> You are not particularly clever, are you? Let me rephrase. Listen carefully this time.",
+        secondIncorrect: {
+            part1: "Twice. You have failed this twice. My patience is not infinite. We are done with this volume. Do not touch it again.",
+            part2: "Your inability to grasp this simple concept is... profoundly irritating. Leave me."
+        },
+        bookCompleted: "There is nothing more you can learn from that volume. Its story is complete for you.",
+        bothered: "What is it? Can you not see that I am contemplating? Your constant fidgeting is like a fly buzzing in a quiet cathedral."
+    };
+
+    // --- STATE & DOM ELEMENTS ---
+    let isInteracting = false;
+    let dialogueQueue = [];
+    let currentDialogueIndex = 0;
+    let currentBookId = null;
+    let currentQuizData = null;
+    let interactionTimeoutId = null; 
+    const completedBooks = new Set(JSON.parse(localStorage.getItem('completedLibraryBooks') || '[]'));
+    let quizAttempts = {};
+
+    const books = document.querySelectorAll('.book');
+    const shuElement = document.getElementById('shu');
+    const dialogueBox = document.getElementById('dialogue-box');
+    const characterName = document.getElementById('character-name');
+    const dialogueText = document.getElementById('dialogue-text');
+    const quizOptionsContainer = document.getElementById('quiz-options');
+    const nextIndicator = document.getElementById('dialogue-next-indicator');
+
+    // --- CORE LOGIC ---
+    function showDialogue(speaker, text) {
+        dialogueBox.style.display = 'flex';
+        characterName.innerText = speaker;
+        dialogueText.innerHTML = text;
+    }
+
+    function displayNextDialogue() {
+        if (currentDialogueIndex < dialogueQueue.length) {
+            const { speaker, text } = dialogueQueue[currentDialogueIndex];
+            showDialogue(speaker, text);
+            nextIndicator.classList.remove('hidden');
+            currentDialogueIndex++;
+        } else {
+            nextIndicator.classList.add('hidden');
+            if (currentQuizData) {
+                displayQuiz(currentQuizData);
+            } else {
+                endInteraction();
+            }
+        }
+    }
+
+    function displayQuiz(quizData) {
+        dialogueBox.classList.add('quiz-active');
+        showDialogue("Sei", quizData.question);
+        quizOptionsContainer.innerHTML = '';
+        quizData.options.forEach(option => {
+            const button = document.createElement('button');
+            button.className = 'quiz-btn';
+            button.innerText = option;
+            button.onclick = () => handleQuizAnswer(option, quizData.answer, button);
+            quizOptionsContainer.appendChild(button);
+        });
+        quizOptionsContainer.classList.remove('hidden');
+    }
+
+    function handleQuizAnswer(selectedOption, correctAnswer, clickedButton) {
+        quizOptionsContainer.querySelectorAll('.quiz-btn').forEach(btn => {
+            btn.disabled = true;
+            if (btn.innerText === correctAnswer) {
+                btn.classList.add('correct');
+            }
+        });
+
+        if (selectedOption === correctAnswer) {
+            // Correct Answer Logic
+            completedBooks.add(currentBookId);
+            localStorage.setItem('completedLibraryBooks', JSON.stringify(Array.from(completedBooks)));
+            document.getElementById(`book${currentBookId}`).classList.add('completed');
+            currentQuizData = null; 
+            
+            setTimeout(() => {
+                let response;
+                if (Math.random() < 0.25) { // 25% chance for a special, warmer response
+                    response = seiResponses.specialCorrect;
+                } else {
+                    response = seiResponses.correct[Math.floor(Math.random() * seiResponses.correct.length)];
+                }
+                quizOptionsContainer.classList.add('hidden');
+                dialogueBox.classList.remove('quiz-active');
+                showDialogue("Sei", response);
+                interactionTimeoutId = setTimeout(endInteraction, 4000);
+            }, 1000);
+
+        } else {
+            // --- NEW --- Incorrect Answer Logic
+            clickedButton.classList.add('incorrect');
+            
+            if (!quizAttempts[currentBookId]) quizAttempts[currentBookId] = 0;
+            quizAttempts[currentBookId]++;
+
+            setTimeout(() => {
+                quizOptionsContainer.classList.add('hidden');
+                dialogueBox.classList.remove('quiz-active');
+
+                if (quizAttempts[currentBookId] === 1) {
+                    // First time wrong: queue up the explanation and the retry
+                    const bookData = libraryData[currentBookId];
+                    dialogueQueue = [
+                        { speaker: "Sei", text: seiResponses.firstIncorrect },
+                        ...bookData.retryDialogue
+                    ];
+                    currentDialogueIndex = 0;
+                    currentQuizData = bookData.quiz; // Keep quiz data for the retry
+                    displayNextDialogue();
+
+                } else {
+                    // Second time wrong: Show harsh response, lock the book, and end.
+                    completedBooks.add(currentBookId);
+                    localStorage.setItem('completedLibraryBooks', JSON.stringify(Array.from(completedBooks)));
+                    const bookElement = document.getElementById(`book${currentBookId}`);
+                    bookElement.classList.add('completed');
+                    bookElement.style.filter = 'grayscale(1)';
+                    
+                    dialogueQueue = [
+                        { speaker: "Sei", text: seiResponses.secondIncorrect.part1 },
+                        { speaker: "Sei", text: seiResponses.secondIncorrect.part2 }
+                    ];
+                    currentDialogueIndex = 0;
+                    currentQuizData = null; // No more quiz attempts
+                    displayNextDialogue();
+                }
+            }, 1500);
+        }
+    }
+        
+    function endInteraction() {
+        clearTimeout(interactionTimeoutId);
+        interactionTimeoutId = null;
+        dialogueBox.style.display = 'none';
+        quizOptionsContainer.classList.add('hidden');
+        dialogueBox.classList.remove('quiz-active');
+        isInteracting = false;
+        dialogueQueue = [];
+        currentBookId = null;
+        currentQuizData = null;
+        currentDialogueIndex = 0;
+    }
+
+    function startBookInteraction(bookId) {
+        if(isInteracting) return;
+        clearTimeout(interactionTimeoutId);
+        
+        isInteracting = true;
+        currentBookId = bookId;
+        const bookData = libraryData[bookId];
+
+        dialogueQueue = bookData.dialogue;
+        currentQuizData = bookData.quiz;
+        currentDialogueIndex = 0;
+        displayNextDialogue();
+    }
+
+    // --- EVENT HANDLERS ---
+    function onBookClick(event) {
+        if (isInteracting) return;
+        const bookId = event.target.dataset.bookId;
+
+        if (completedBooks.has(bookId)) {
+            isInteracting = true;
+            showDialogue("Sei", seiResponses.bookCompleted);
+            nextIndicator.classList.add('hidden');
+            interactionTimeoutId = setTimeout(endInteraction, 3000);
+            return;
+        }
+        startBookInteraction(bookId);
+    }
+
+    function onShuClick() {
+        if (isInteracting) return;
+        isInteracting = true;
+        showDialogue("Sei", seiResponses.bothered);
+        nextIndicator.classList.add('hidden');
+        interactionTimeoutId = setTimeout(endInteraction, 3500);
+    }
+
+    function onDialogueBoxClick() {
+        if (isInteracting && !dialogueBox.classList.contains('quiz-active')) {
+            clearTimeout(interactionTimeoutId);
+            interactionTimeoutId = null;
+            nextIndicator.classList.add('hidden');
+            displayNextDialogue();
+        }
+    }
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // Apply 'completed' class to books already finished
+        completedBooks.forEach(bookId => {
+            const bookElement = document.getElementById(`book${bookId}`);
+            if (bookElement) {
+                bookElement.classList.add('completed');
+            }
+        });
+
+        // Navigation Menu Toggle Logic
+        const navMenu = document.getElementById('navigation-menu');
+        const navToggleBtn = document.getElementById('nav-toggle-btn');
+        const relationshipLevel = parseInt(localStorage.getItem('relationshipLevel') || '0');
+        const HUB_LEVEL = 4; // From main script
+
+        navToggleBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('is-open');
+        });
+
+        // Disable links if relationship is not high enough
+        if (relationshipLevel < HUB_LEVEL) {
+            document.querySelectorAll('#nav-library, #nav-study').forEach(link => {
+                if(!link.classList.contains('active')) {
+                   link.classList.add('disabled');
+                   link.href = 'javascript:void(0);'; // Prevent navigation
+                   link.title = "Your bond with Sei is not yet strong enough.";
+                }
+            });
+        }
+    });
+
+    // --- BIND EVENTS ---
+    books.forEach(book => book.addEventListener('click', onBookClick));
+    shuElement.addEventListener('click', onShuClick);
+    dialogueBox.addEventListener('click', onDialogueBoxClick);
+    </script>
+</body>
+</html>
